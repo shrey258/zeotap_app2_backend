@@ -33,28 +33,29 @@ async def calculate_daily_summary(city: str):
         condition = entry['main']
         conditions[condition] = conditions.get(condition, 0) + 1
 
-    if temps:
-        summary_data = {
-            "date": today.strftime("%Y-%m-%d"),
-            "city": city,
-            "avg_temp": sum(temps) / len(temps),
-            "max_temp": max(temps),
-            "min_temp": min(temps),
-            "dominant_condition": max(conditions, key=conditions.get),
-            "total_entries": len(temps)
-        }
-
-        # Store the summary in a separate collection for daily summaries
-        summary_collection = db["daily_summaries"]
-        await summary_collection.update_one(
-            {"date": summary_data["date"], "city": city},
-            {"$set": summary_data},
-            upsert=True
-        )
-
-        logger.info(f"Daily summary for {city} on {today} calculated and stored.")
-    else:
+    if not temps:
         logger.info(f"No weather data available for {city} on {today}")
+        return
+
+    summary_data = {
+        "date": today.strftime("%Y-%m-%d"),
+        "city": city,
+        "avg_temp": sum(temps) / len(temps),
+        "max_temp": max(temps),
+        "min_temp": min(temps),
+        "dominant_condition": max(conditions, key=conditions.get),
+        "total_entries": len(temps)
+    }
+
+    # Store the summary in a separate collection for daily summaries
+    summary_collection = db["daily_summaries"]
+    await summary_collection.update_one(
+        {"date": summary_data["date"], "city": city},
+        {"$set": summary_data},
+        upsert=True
+    )
+
+    logger.info(f"Daily summary for {city} on {today} calculated and stored.")
 
 async def check_alert_thresholds(weather_data: WeatherData):
     try:

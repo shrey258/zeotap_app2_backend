@@ -1,14 +1,26 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from app.routes import router
 from dotenv import load_dotenv
 from app.tasks import start_weather_monitoring
 from app.logger import main_logger as logger
 import asyncio
+from app.config import config
 
 load_dotenv()  # This line loads the variables from .env
 
 app = FastAPI()
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=config.CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=config.CORS_METHODS,
+    allow_headers=config.CORS_HEADERS,
+)
+
 app.include_router(router)
 
 @app.on_event("startup")

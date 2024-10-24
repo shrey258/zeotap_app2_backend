@@ -147,7 +147,12 @@ async def get_weather_history(
             query["timestamp"] = query.get("timestamp", {}) | {"$lte": date_range.end_date}
 
         cursor = db[config.WEATHER_COLLECTION].find(query).sort("timestamp", -1)
-        return [WeatherData(**doc) for doc in await cursor.to_list(length=None)]
+        weather_data = [WeatherData(**doc) for doc in await cursor.to_list(length=None)]
+        
+        if not weather_data:
+            raise HTTPException(status_code=404, detail=f"No weather data found for {city} in the specified date range")
+        
+        return weather_data
     except Exception as e:
         logger.error(f"Error fetching weather history for {city}: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="Error fetching weather history")

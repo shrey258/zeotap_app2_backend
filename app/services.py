@@ -89,6 +89,9 @@ async def create_notification(notification_data: dict) -> Notification:
         result = await db["notifications"].insert_one(notification.dict(exclude={'id'}))
         notification.id = str(result.inserted_id)
         return notification
+    except KeyError as e:
+        logger.error(f"Missing key in notification data: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=400, detail=f"Invalid notification data: missing {str(e)}")
     except Exception as e:
         logger.error(f"Error creating notification: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="Error creating notification")
