@@ -95,37 +95,38 @@ async def check_alert_thresholds(weather_data: WeatherData):
         logger.error(f"Error checking alert thresholds for {weather_data.city}: {str(e)}", exc_info=True)
 
 async def start_weather_monitoring():
-    while True:
-        for city in ["Delhi", "Mumbai", "Chennai", "Bangalore", "Kolkata", "Hyderabad"]:
-            try:
-                weather_data = await fetch_weather_data(city)
-                collection = db[config.WEATHER_COLLECTION]
-                
-                # Convert WeatherData to dictionary
-                weather_dict = weather_data.dict()
-                
-                # Update the document for this city, or insert if it doesn't exist
-                result = await collection.update_one(
-                    {"city": city},
-                    {"$set": weather_dict},
-                    upsert=True
-                )
+    # This function will now run once per invocation
+    for city in ["Delhi", "Mumbai", "Chennai", "Bangalore", "Kolkata", "Hyderabad"]:
+        try:
+            weather_data = await fetch_weather_data(city)
+            collection = db[config.WEATHER_COLLECTION]
+            
+            # Convert WeatherData to dictionary
+            weather_dict = weather_data.dict()
+            
+            # Update the document for this city, or insert if it doesn't exist
+            result = await collection.update_one(
+                {"city": city},
+                {"$set": weather_dict},
+                upsert=True
+            )
 
-                if result.modified_count > 0:
-                    logger.info(f"Updated weather data for {city}")
-                elif result.upserted_id:
-                    logger.info(f"Inserted new weather data for {city}")
-                else:
-                    logger.info(f"No changes to weather data for {city}")
+            if result.modified_count > 0:
+                logger.info(f"Updated weather data for {city}")
+            elif result.upserted_id:
+                logger.info(f"Inserted new weather data for {city}")
+            else:
+                logger.info(f"No changes to weather data for {city}")
 
-                # Check alert thresholds
-                await check_alert_thresholds(weather_data)
-                
-                # Calculate daily summary
-                await calculate_daily_summary(city)
-                
-            except Exception as e:
-                logger.error(f"Error processing weather data for {city}: {str(e)}", exc_info=True)
-        
-        # Wait for 5 minutes before the next round of data fetching
-        await asyncio.sleep(300)
+            # Check alert thresholds
+            await check_alert_thresholds(weather_data)
+            
+            # Calculate daily summary
+            await calculate_daily_summary(city)
+            
+        except Exception as e:
+            logger.error(f"Error processing weather data for {city}: {str(e)}", exc_info=True)
+
+    # Note: In a serverless environment, this sleep won't work as intended
+    # You'll need to set up a separate mechanism for periodic invocation
+    logger.info("Weather monitoring cycle completed. In a non-serverless environment, would wait 5 minutes before next cycle.")
