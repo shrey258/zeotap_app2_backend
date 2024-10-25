@@ -39,11 +39,3 @@ async def global_exception_handler(request: Request, exc: Exception):
         status_code=500,
         content={"message": "An unexpected error occurred. Please try again later."}
     )
-
-# Vercel serverless function handler
-@app.get("/")
-async def read_root():
-    return {"message": "Welcome to the Weather Monitoring API"}
-
-# This line is necessary for Vercel deployment
-handler = app

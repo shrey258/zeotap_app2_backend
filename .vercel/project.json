@@ -1,5 +1,1 @@
-{
-  "buildCommand": "pip install -r requirements.txt",
-  "devCommand": "uvicorn app.main:app --host 0.0.0.0 --port 3000",
-  "framework": null
-}
+{"orgId":"team_K0fC3T3ys4PAqlE1LURM0OTK","projectId":"prj_8DaiTfCkrgY6CZ5ftgndU3uNjWre"}

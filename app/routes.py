@@ -15,6 +15,14 @@ collection = db[config.WEATHER_COLLECTION]
 
 router = APIRouter()
 
+@router.get("/")
+async def root():
+    return {"message": "Welcome to the Weather API"}
+
+@router.get("/cities")
+async def get_cities():
+    return {"cities": ["Delhi", "Mumbai", "Chennai", "Bangalore", "Kolkata", "Hyderabad"]}
+
 @router.get("/weather/{city}", response_model=WeatherData)
 async def get_weather(city: str):
     try:
@@ -156,3 +164,13 @@ async def get_weather_history(
     except Exception as e:
         logger.error(f"Error fetching weather history for {city}: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="Error fetching weather history")
+
+@router.get("/health")
+async def health_check():
+    try:
+        # Perform a simple database operation to check connectivity
+        await db.command("ping")
+        return {"status": "healthy", "database": "connected"}
+    except Exception as e:
+        logger.error(f"Health check failed: {str(e)}", exc_info=True)
+        return {"status": "unhealthy", "database": "disconnected"}
