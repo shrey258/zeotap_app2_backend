@@ -18,7 +18,7 @@ This project is a FastAPI-based backend application for monitoring weather condi
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/zeotap_app2_backend.git
+   git clone https://github.com/shrey258/zeotap_app2_backend.git
    cd zeotap_app2_backend
    ```
 
