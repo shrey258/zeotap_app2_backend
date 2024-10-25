@@ -138,3 +138,4 @@ websockets==12.0
 wsproto==1.2.0
 xmod==1.8.1
 yarl==1.9.4
+asyncio
